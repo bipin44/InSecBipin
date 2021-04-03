@@ -1,0 +1,77 @@
+import React, { useState } from 'react'
+import './EncryptForm.css'
+import axios from 'axios'
+
+
+const DecryptForm = () => {
+    const [decryptImg, setdecryptImg] = useState({
+        share1: {},
+        share1fileName: "",
+        share2: {},
+        share2fileName: "",
+
+    });
+
+    const [decrypted, setdecrypted] = useState({
+        decrypteddata: "",
+        finalImage: "https://via.placeholder.com/500x500?text=Your+uploaded+image+final+image+appears+here",
+    });
+
+    const [hiddenmsg, setmsg] = useState('');
+
+    const sendDecryptionData = async () => {
+        const formData = new FormData();
+        formData.append("share1", decryptImg.share1);
+        formData.append("share2", decryptImg.share2);
+        const responseData = await axios.post("/showanddecrypt", formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        const { decrypteddata, finalImage } = responseData.data;
+        setdecrypted({ decrypteddata, finalImage });
+
+        const { msg } = responseData.data;
+        // setmsg(responseData.data);
+
+        console.log(responseData.data.decrypteddata);
+    }
+    const handlefilechange1 = (event) => {
+        setdecryptImg({ ...decryptImg, share1: event.target.files[0], share1fileName: event.target.files[0].name });
+    }
+    const handlefilechange2 = (event) => {
+        setdecryptImg({ ...decryptImg, share2: event.target.files[0], share2fileName: event.target.files[0].name });
+    }
+
+    const handlesubmit = (event) => {
+        event.preventDefault();
+        sendDecryptionData();
+    }
+    return (
+        <div style={{ width: "100%" }}>
+            <form onSubmit={handlesubmit}>
+                <br />
+                <div>
+                    <label>Upload Orignal Image</label>
+                </div>
+                <div className="custom-file mb-5" style={{ width: "20%" }}>
+                    <input type="file" className="custom-file-input" id="customFile" onChange={handlefilechange1} />
+                    <label className="text-left custom-file-label" htmlFor="customFile">{decryptImg.share1fileName}</label>
+                </div>
+                <br />
+                <div>
+                    <label>Upload Encrypted Image</label>
+                </div>
+                <div className="custom-file mb-5" style={{ width: "20%" }}>
+                    <input type="file" className="custom-file-input" id="customFile" onChange={handlefilechange2} />
+                    <label className="text-left custom-file-label" htmlFor="customFile">{decryptImg.share2fileName}</label>
+                </div>
+                <br />
+                <button className='submitbutton' type='submit'>Decrypt</button>
+
+            </form>
+            <label>The Encrypted message is : {decrypted.decrypteddata}</label>
+
+        </div>
+    )
+
+}
+export default DecryptForm
