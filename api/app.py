@@ -12,7 +12,7 @@ CRYPTO_FOLDER = Path.joinpath(
 DECRYPTED_FOLDER = Path.joinpath(
     Path(__file__).absolute().parents[1], "decrypted_images")
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='./build', static_url_path='/')
 CORS(app)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -25,7 +25,9 @@ ALLOWED_IMAGE_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
 
-
+@app.route('/')
+def index():
+    return app.send_static_file('index.html')
 @app.route("/hideandencrypt", methods=['POST'])
 def initHideAndEncrypt():
     if(request.method != "POST"):
@@ -92,4 +94,7 @@ def send_decrypt_img(filename):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=False, port=os.environ.get('PORT', 80))
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
