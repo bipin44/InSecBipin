@@ -1,0 +1,5 @@
+---
+applications:
+ - name: infosecbipin
+   random-route: true
+   memory: 128M
